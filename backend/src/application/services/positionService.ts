@@ -21,11 +21,14 @@ export const getCandidatesByPositionService = async (positionId: number) => {
         });
 
         return applications.map(app => ({
-            fullName: `${app.candidate.firstName} ${app.candidate.lastName}`,
-            currentInterviewStep: app.interviewStep.name,
+            id: String(app.candidate.id),
+            firstName: app.candidate.firstName,
+            lastName: app.candidate.lastName,
+            email: app.candidate.email,
+            phoneNumber: app.candidate.phone || '',
             averageScore: calculateAverageScore(app.interviews),
-            id: app.candidate.id,
-            applicationId: app.id
+            currentStage: String(app.currentInterviewStep),
+            applicationId: String(app.id)
         }));
     } catch (error) {
         console.error('Error retrieving candidates by position:', error);
@@ -49,19 +52,9 @@ export const getInterviewFlowByPositionService = async (positionId: number) => {
         throw new Error('Position not found');
     }
 
-    // Formatear la respuesta para incluir el nombre de la posición y el flujo de entrevistas
-    return {
-        positionName: positionWithInterviewFlow.title,
-        interviewFlow: {
-            id: positionWithInterviewFlow.interviewFlow.id,
-            description: positionWithInterviewFlow.interviewFlow.description,
-            interviewSteps: positionWithInterviewFlow.interviewFlow.interviewSteps.map(step => ({
-                id: step.id,
-                interviewFlowId: step.interviewFlowId,
-                interviewTypeId: step.interviewTypeId,
-                name: step.name,
-                orderIndex: step.orderIndex
-            }))
-        }
-    };
+    return positionWithInterviewFlow.interviewFlow.interviewSteps.map(step => ({
+        id: String(step.id),
+        name: step.name,
+        order: step.orderIndex
+    }));
 };
